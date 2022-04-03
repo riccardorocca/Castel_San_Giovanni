@@ -90,20 +90,32 @@
           }
         });
 
-        // Add button event
-        buttonA.addEventListener( 'click', function() {
-          switch(buttonA.innerHTML) {
-            case "Foto Satellite":
-              api.setShadingStyle('matcap', {type: 'matcap'}, function(err) {});
-              buttonA.innerHTML = "Ombreggiato";
-              buttonA.style.backgroundColor = "#888888";
-              break;
-            case "Ombreggiato":
-              api.setShadingStyle('pbr', {type: 'lit'}, function(err) {});
-              buttonA.innerHTML = "Foto Satellite";
-              buttonA.style.backgroundColor = "#1caad9";
-              break;
+        api.getTextureList(function(err, textures) {
+          if(!err) {
+            for ( var prop in textures ) {
+              if (textures[prop].name === "satellite_image.jpg") { var texture_Topo = textures[prop].uid; }
             }
+
+            if ( texture_Topo ) {
+              // Add button event
+              buttonA.addEventListener( 'click', function() {
+                switch(buttonA.innerHTML) {
+                  case "Foto Satellite":
+                    buttonA.innerHTML = "Ombreggiato";
+                    buttonA.style.backgroundColor = "#888888";
+                    api.updateTexture('https://riccardorocca.github.io/Castel_San_Giovanni/gray_image.jpg', texture_Topo, function(err, texture_Topo) {});
+                    break;
+                  case "Ombreggiato":
+                    buttonA.innerHTML = "Foto Satellite";
+                    buttonA.style.backgroundColor = "#1caad9";
+                    api.updateTexture('https://riccardorocca.github.io/Castel_San_Giovanni/satellite_image.jpg', texture_Topo, function(err, texture_Topo) {});
+                    break;
+                }
+
+              });
+            }
+
+          }
         });
 
       });
