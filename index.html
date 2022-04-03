@@ -1,0 +1,169 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sketchfab Viewer API example</title>
+
+  <!-- Insert this script -->
+  <script type="text/javascript" src="https://static.sketchfab.com/api/sketchfab-viewer-1.8.2.js"></script>
+</head>
+
+<body>
+  <iframe style="position:fixed; width:100%; height:100%; border:0" src="" id="api-frame" sandbox="allow-scripts allow-same-origin allow-popups allow-forms" allow="autoplay; fullscreen; vr" allowvr allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+
+  <div class="buttons">
+    <button id="keyA">Foto Satellite</button>
+    <button id="keyB">Inondazione</button>
+    <button id="keyC">Fiumi</button>
+  </div>
+
+  <!-- Your new script -->
+  <script>
+    var model = 'beb38ac0c8f4476eafe77b2684181828';
+
+    // Buttons
+    buttonA = document.getElementById( 'keyA' );
+    buttonB = document.getElementById( 'keyB' );
+    buttonC = document.getElementById( 'keyC' );
+
+    // Variables
+    version = '1.8.2';
+    iframe = document.getElementById( 'api-frame' );
+    client = new Sketchfab( version, iframe );
+
+    error = function () {
+      console.error( 'Sketchfab API Error!' );
+    };
+
+    success = function( api ) {
+      api.start();
+      // Wait for viewer to be ready
+      api.addEventListener( 'viewerready', function() {
+
+        // Get the object nodes
+        api.getNodeMap( function ( err, nodes ) {
+          if ( !err ) {
+            for ( var prop in nodes ) {
+              if ( nodes.hasOwnProperty( prop ) ) {
+                //alert(nodes[prop].instanceID+" : "+nodes[prop].name+" : "+nodes[prop].nodeMask+" : "+nodes[prop].type+" : "+nodes[prop].localMatrix+" ; "+nodes[prop].worldMatrix);
+                if      ( nodes[ prop ].name === "Topography" )  { var node_Topography = nodes[prop].instanceID; }
+                else if ( nodes[ prop ].name === "Flooding" )    { var node_Flooding   = nodes[prop].instanceID; }
+                else if ( nodes[ prop ].name === "Rivers" )      { var node_Rivers     = nodes[prop].instanceID; }
+              }
+            }
+
+            if ( node_Flooding ) {
+              buttonB.addEventListener( 'click', function() {
+                switch(buttonB.innerHTML) {
+                  case "Inondazione":
+                    buttonB.innerHTML = " Inondazione ";
+                    buttonB.style.backgroundColor = "#888888";
+                    api.hide(node_Flooding);
+                    break;
+                  case " Inondazione ":
+                    buttonB.innerHTML = "Inondazione";
+                    buttonB.style.backgroundColor = "#1caad9";
+                    api.show(node_Flooding);
+                    break;
+                }
+              });
+            }
+
+            if ( node_Rivers ) {
+              buttonC.addEventListener( 'click', function() {
+                switch(buttonC.innerHTML) {
+                  case "Fiumi":
+                    buttonC.innerHTML = " Fiumi ";
+                    buttonC.style.backgroundColor = "#888888";
+                    api.hide(node_Rivers);
+                    break;
+                  case " Fiumi ":
+                    buttonC.innerHTML = "Fiumi";
+                    buttonC.style.backgroundColor = "#1caad9";
+                    api.show(node_Rivers);
+                    break;
+                }
+              });
+            }
+
+          }
+        });
+
+        // Add button event
+        buttonA.addEventListener( 'click', function() {
+          switch(buttonA.innerHTML) {
+            case "Foto Satellite":
+              api.setShadingStyle('matcap', {type: 'matcap'}, function(err) {});
+              buttonA.innerHTML = "Ombreggiato";
+              buttonA.style.backgroundColor = "#888888";
+              break;
+            case "Ombreggiato":
+              api.setShadingStyle('pbr', {type: 'lit'}, function(err) {});
+              buttonA.innerHTML = "Foto Satellite";
+              buttonA.style.backgroundColor = "#1caad9";
+              break;
+            }
+        });
+
+      });
+    }
+
+    // Load the model
+    client.init( model, {
+      camera: 0,
+      success: success,
+      error: error,
+      ui_infos: 0,
+      ui_controls: 0,
+      ui_stop: 1,
+      watermark: 1,
+      supersample: 0
+    });
+
+  </script>
+
+  <!-- Lastly, some CSS -->
+  <style type="text/css">
+
+    body {
+      margin: 0;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Button style */
+    .buttons {
+      width: 160px;
+      margin: 35px 5px;
+      right: 0;
+      top: : 0;
+      z-index: 1;
+      position: absolute;
+    }
+
+    button {
+      width: 100%;
+      height: 25px;
+      line-height: 21px;
+      /*text-transform: capitalize;*/
+      color: white;
+      opacity: 0.8;
+      border: none;
+      border-radius: 5px;
+      text-align: center;
+      vertical-align: middle;
+      display: block;
+      margin-top: 2px;
+      background: #1caad9;
+    }
+
+    button:hover {opacity: 1;}
+    button:active {font-weight: bold;}
+
+  </style>
+</body>
